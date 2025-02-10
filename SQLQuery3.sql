@@ -370,6 +370,7 @@ Group by c.CustomerName;
 --How would you handle customers who have fewer than two orders? 
 --Consider how your approach would handle ties in order amounts 
 --when determining the "top two."
+select * from customer;
 
 
 --26. Find the customer who has spent the most money.
