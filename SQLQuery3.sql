@@ -41,9 +41,8 @@ set CustomerId=2 where TotalAmount='150.00';
 update  Orders
 set CustomerId=3 where TotalAmount='50.00';
 
-
+use CustomerEmployeeDatabase
 Select * From Orders;
-
 
 Create table Products(
 		ProductId int Primary key,
@@ -352,25 +351,38 @@ order by TotalEmployees Desc ;
 --on the total amount spent, with the highest spending orders 
 --receiving the top rank. How would you handle situations where 
 --two or more orders have the same total amount?
-Select  CustomerName ,Sum(oi.Quantity *p.price)  as TotalMoney, rank() over(order by Sum(oi.Quantity *p.price) DESC )
-from Customers c
-inner join Orders o On c.CustomerID=o.CustomerId
-inner join OrderItems oi on o.OrderId=oi.OrderId
-inner join Products p on oi.ProductId=p.ProductId
-Group by c.CustomerName;
+;
 
+Select * from Orders
+
+SELECT 
+    DENSE_RANK() OVER (PARTITION BY c.CustomerID ORDER BY o.TotalAmount DESC) AS OrderRank, 
+    c.CustomerName,
+    o.TotalAmount
+FROM 
+    Customers c
+JOIN 
+    Orders o ON c.CustomerID = o.CustomerId
 --24. Revisit the ranking of customer orders from the previous
 --question. This time, ensure that consecutive ranks are always as
 --signed, even if there are ties in the total amount spent.
 --Explain how this approach differs from the ranking method you 
 --used in the previous question. In what scenarios would you 
 --choose one ranking method over the other?
+Select  CustomerName ,Sum(oi.Quantity *p.price)  as TotalMoney, 
+dense_rank() over(order by Sum(oi.Quantity *p.price) DESC )
+from Customers c
+inner join Orders o On c.CustomerID=o.CustomerId
+inner join OrderItems oi on o.OrderId=oi.OrderId
+inner join Products p on oi.ProductId=p.ProductId
+Group by c.CustomerName;
+
 
 --25. Identify the two most expensive orders for each customer. 
 --How would you handle customers who have fewer than two orders? 
 --Consider how your approach would handle ties in order amounts 
 --when determining the "top two."
-select * from customer;
+
 
 
 --26. Find the customer who has spent the most money.
