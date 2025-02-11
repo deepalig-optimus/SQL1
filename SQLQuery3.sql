@@ -41,8 +41,9 @@ set CustomerId=2 where TotalAmount='150.00';
 update  Orders
 set CustomerId=3 where TotalAmount='50.00';
 
-use CustomerEmployeeDatabase
+
 Select * From Orders;
+
 
 Create table Products(
 		ProductId int Primary key,
@@ -351,38 +352,25 @@ order by TotalEmployees Desc ;
 --on the total amount spent, with the highest spending orders 
 --receiving the top rank. How would you handle situations where 
 --two or more orders have the same total amount?
-;
-
-Select * from Orders
-
-SELECT 
-    DENSE_RANK() OVER (PARTITION BY c.CustomerID ORDER BY o.TotalAmount DESC) AS OrderRank, 
-    c.CustomerName,
-    o.TotalAmount
-FROM 
-    Customers c
-JOIN 
-    Orders o ON c.CustomerID = o.CustomerId
---24. Revisit the ranking of customer orders from the previous
---question. This time, ensure that consecutive ranks are always as
---signed, even if there are ties in the total amount spent.
---Explain how this approach differs from the ranking method you 
---used in the previous question. In what scenarios would you 
---choose one ranking method over the other?
-Select  CustomerName ,Sum(oi.Quantity *p.price)  as TotalMoney, 
-dense_rank() over(order by Sum(oi.Quantity *p.price) DESC )
+Select  CustomerName ,Sum(oi.Quantity *p.price)  as TotalMoney, rank() over(order by Sum(oi.Quantity *p.price) DESC )
 from Customers c
 inner join Orders o On c.CustomerID=o.CustomerId
 inner join OrderItems oi on o.OrderId=oi.OrderId
 inner join Products p on oi.ProductId=p.ProductId
 Group by c.CustomerName;
 
+--24. Revisit the ranking of customer orders from the previous
+--question. This time, ensure that consecutive ranks are always as
+--signed, even if there are ties in the total amount spent.
+--Explain how this approach differs from the ranking method you 
+--used in the previous question. In what scenarios would you 
+--choose one ranking method over the other?
+Select * from Customers;
 
 --25. Identify the two most expensive orders for each customer. 
 --How would you handle customers who have fewer than two orders? 
 --Consider how your approach would handle ties in order amounts 
 --when determining the "top two."
-
 
 
 --26. Find the customer who has spent the most money.
@@ -409,3 +397,147 @@ inner join OrderItems oi on p.productId=oi.ProductId
 group by p.ProductName)
 AS ProductQuantities
 Order by TotalQuantity DESC;
+
+
+
+--Practice on Views
+Create VIEW SalesEmployees As
+SELECT EmployeeID,EmployeeName
+From Employees Where DepartmentId=1;
+
+Alter Table Employees 
+Add Salary int;
+
+Update Employees set Salary=10000 where
+EmployeeName='Alice';
+
+Update Employees set Salary=12000 where
+EmployeeName='Bob';
+Update Employees set Salary=25000 where
+EmployeeName='Charlie';
+
+
+Update Employees set Salary=18500 where
+EmployeeName='David';
+
+Select * from Employees;
+
+CREATE View high_salary_employees as
+Select EmployeeId,EmployeeName,DepartmentID from Employees
+where Salary>15000;
+
+SELECT * FROM high_salary_employees;
+
+
+Alter table Employees 
+ADD  Age int ;
+
+Create View young_employees as
+Select EmployeeId,EmployeeName,age
+from Employees
+where Age<30
+WITH CHECK OPTION;
+
+INSERT INTO young_employees(EmployeeID,EmployeeName,Age)
+Values(5,'John',25);
+--INSERT INTO young_employees(EmployeeId,EmployeeName,Age)
+--Values(6,'Itee',35);  // Doesn't meet the requirement of with check option
+
+
+Create View employee_info as
+Select EmployeeName,DepartmentID
+From employees;
+
+
+Update employee_info
+SET  EmployeeName='Deepali' where DepartmentId=1;
+
+Create View employee_Update as 
+SELECT EmployeeName,Age
+From Employees;
+
+
+Update employee_Update 
+SET Age=21 where EmployeeName='Deepali';
+
+Update employee_Update
+SET age=25 where EmployeeName='John';
+
+Update employee_Update
+SET age=23 where EmployeeName='David';
+
+
+Update employee_Update 
+SET age=24
+where EmployeeName IN ('Alice','Charlie','Bob');
+
+SELECT * FROM Employees;
+
+Drop  View if Exists employee_info;
+
+
+---SQL INDEXES 
+CREATE INDEX idx_CustomerName on Customers(CustomerName);
+--Select * from Customers Where CustomerId=3; //Without Index Query
+
+SELECT * From Customers Where CustomerName='John Doe';
+
+--Unique Index
+Create UNIQUE INDEX idx_unique_city
+on Customers(City);
+
+SELECT * FROM Customers where City='New York'; 
+
+Create  Index idx_OrderDate
+on Orders(OrderDate);
+
+
+Drop index Orders.idx_OrderDate;
+
+--Stored Procedures
+
+--With Parameteres
+Create Procedure EmployeeCountByDepartment
+	@DepartmentName Varchar(50)
+As
+Begin
+	Select COUNT(*) as EmployeeCount
+	From Employees as e inner join Departments d
+	on e.DepartmentID=e.DepartmentId
+	Where DepartmentName=@DepartmentName
+End;
+
+EXEC EmployeeCountByDepartment @DepartmentName='Sales';
+EXEC EmployeeCountByDepartment @DepartmentName='IT';
+
+--Stored Procedures With output Parameters
+
+Select * from Employees;
+
+Create Procedure GetEmployeeSalary
+	@EmployeeId INT,
+	@Salary Decimal(10,2) Output
+As
+Begin
+	Select @Salary = Salary
+	From Employees
+	Where EmployeeId = @EmployeeId;
+
+	If @Salary IS NULL
+	Begin 
+		RAISERROR('Employee not found',16,1); -- 16 means Error related to a problem in a code or a businees rule violation
+		Set @Salary=NULL;
+	End
+End;
+Go;
+
+Declare @EmployeeSalary Decimal(10,2); -- first we have to declare a static variable
+
+EXEC GetEmployeeSalary @EmployeeId=1, @Salary=@EmployeeSalary OutPut;
+
+Print 'Employee Salary: '+ CAST(@EmployeeSalary AS varchar(10));
+
+
+
+
+
