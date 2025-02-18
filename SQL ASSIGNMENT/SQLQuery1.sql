@@ -8,7 +8,7 @@ Create Table t_emp(
 	emp_f_name varchar(50) not null,
 	emp_m_name varchar(50),
 	emp_l_name varchar(50),
-	emp_dob Date not null Check(DateDiff(Year,GetDate(),emp_dob)>18);
+	emp_dob Date not null,
 	emp_doj Date not null
 	);
 
