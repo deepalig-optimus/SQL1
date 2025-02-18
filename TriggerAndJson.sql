@@ -236,3 +236,65 @@ Union ALL
 SELECT * 
 FROM OPENJSON(@json2)
 Where [name] NOT IN (SELECT [name] FROM OPENJSON(@json1))
+
+
+Create Trigger trgInsteadOfSalaryUpdate
+on Employee
+Instead of Update
+As
+Begin
+	Declare @EmployeeId Int,@NewSalary decimal(10,2) @OldSalary Decimal(10,2);
+		Select @EmployeeID=Salary From Inserted;
+
+
+Create Table Users(
+	UserId Int Primary Key,
+	UserName NVarchar(100),
+	Email NVarchar(100)
+	);
+
+Create Table UserDeletionLog(
+	LogID Int Identity Primary Key,
+	UserId INT,
+	UserName nVarchar(100),
+	DeletionDate DateTime
+	);
+
+Select * from 
+Create trigger  trg_AfterUserDelete
+On Users
+After Delete
+As 
+Begin
+	Declare @UserId INT, @UserName nvarchar(100),@Email nvarchar(100);
+
+	Select 
+		@UserId=UserId,
+		@UserName=UserName,
+		@Email=Email
+	From Deleted;
+
+	Insert Into UserDeletionLog(UserId,UserName,Email,DeletionDate)
+	Values(@UserId,@UserName,@Email,GETDATE());
+End;
+
+Create Table Emp(
+	EmployeeID int,
+	EmployeeName varchar(100),
+	HireDate DATE
+	);
+
+Declare @EmployeeID int=1;
+Declare @EmployeeName Varchar(100)='John Doe';
+Declare @HireDate Varchar(50)='2025-02-30';
+
+if TRY_CONVERT(Date,@HireDate) IS NOT NULL
+Begin
+	INSERT INTO employee(EmployeeID,EmployeeName,HireDate)
+	Values(@EmployeeID,@EmployeeName,Try_Convert(Date,@HireDate));
+	Print 'Insert Successful';
+End
+Else
+BEGIN
+	Print 'Invalid Date Format.Insert Aborted.';
+End

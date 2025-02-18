@@ -125,5 +125,66 @@ As AnnualSalary
 From Employee;
 
 --Function to return fullname
+DROP FUNCTION IF EXISTS dbo.GetEmployeeFullName;
+
 Create Function dbo.GetEmployeeFullName(@EmployeeId Int)
-Returns VArchar(100)
+Returns Varchar(100)
+As
+Begin
+	Declare @FullName varchar(100);
+	Select @FullName=FirstName+' '+LastName
+	From Employee
+	Where EmployeeId=@EmployeeId;
+	Return @FullName;
+End;
+Go
+select dbo.GetEmployeeFullName(3) As EmployeeFullName;
+
+
+--SQl Server Function
+Select ASCII('H'); --returns ASCII value
+
+SELECT CHAR(65) AS CodeToCharacter; --returns character
+
+SELECT CHARINDEX('e','Customer') AS MatchPosition;  --returns match Position
+SELECT CHARINDEX('e','Customer',3) AS MatchPosition; 
+
+SELECT CONCAT('Hello','World');
+
+Declare @d DateTime='12/01/2018';
+Select Format (@d,'d','end-US') As 'US English Result',
+			Format(@d,'d','no') AS 'Norwegian Result',
+			Format(@d,'d','zu') As 'Zulu Result';
+
+SELECT CAST(25 As Float);
+
+SELECT CAST('2017-08-25' AS datetime);
+SELECT Convert(int,25.65);
+SELECT CONVERT(varchar,25.65);
+
+SELECT IIF(5000<1000,'YES','NO') As result;
+
+SELECT COALESCE(NULL,NULL,NULL,'W3Schools.com',NULL,'Example.com');
+--RETURNS first non-null values in a list
+SELECT Coalesce(NULL,1,2,'W3Schools.com');
+
+SELECT LTRIM('   SQL Tut') As lefttrim;
+SELECT RTRIM('SQL Tut    ') As righttrim;
+
+SELECT PATINDEX('%s%com%','W3Schools.com');
+SELECT PATINDEX('%[ol]%', 'W3Schools.com');
+--returns the position of a pattern in a string.
+--If the pattern is not found, this function returns 0.
+
+SELECT REVERSE('SQL Reverse') ;
+SELECT reverse(FirstName) From Customers;
+
+--Substring
+SELECT Substring('SQl Tutorial',1,5) As ExtractString;
+
+SELECT Current_TimeStamp;
+
+
+
+
+

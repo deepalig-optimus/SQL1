@@ -1,4 +1,4 @@
-create database db1;
+tcreate database db1;
 create table t1(id INT primary key ,name varchar(20),doj date);
 insert into t1 values(1,'emp1','03-02-2025');
 insert into t1 values(2,'emp2','03-02-2025'),
