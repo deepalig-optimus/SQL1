@@ -114,6 +114,8 @@ With GetEmpByLastDay As(
 )
 Select * from GetEmpByLastDay
 where lastdayofmonth='yes';
+	
+
 
 --Select Day(emp_dob) as Date from t_emp;
 --Select month(emp_dob) as month from t_emp;
@@ -126,11 +128,28 @@ where lastdayofmonth='yes';
 --			total worked hours
 --			last worked activity and hours in that
 
-Select 
+/*Select e.emp_id,
 	concat(e.emp_f_name,' ',e.emp_m_name,' ',e.emp_l_name) as fullname,
-	sum(a.atten_end_hrs) as total_worked_hrs
-	from t_emp e inner join 
-	t_atten_det a on
-	e.emp_id=a.emp_id
-	group by a.atten_end_hrs,e.emp_f_name,e.emp_m_name,e.emp_l_name;
+	sum(a.atten_end_hrs) as total_worked_hrs,s.new_salary as salary
+	from 
+		t_emp e inner join t_atten_det a on e.emp_id=a.emp_id
+		inner join  t_salary s on a.emp_id=s.emp_id
+	group by e.emp_id,a.atten_end_hrs,e.emp_f_name,e.emp_m_name,e.emp_l_name,s.new_salary;*/
+
+
+Select concat(e.emp_f_name,' ',e.emp_m_name,' ',e.emp_l_name) as fullname,
+sum(a.atten_end_hrs) as total_hrs,ac.activity_description,
+s1.emp_id, s1.new_salary as previous_salary , 
+s2.new_salary as current_salary from t_salary s1  join 
+t_salary s2 on s1.emp_id=s2.emp_id
+join t_emp e on
+e.emp_id=s2.emp_id
+join t_atten_det a
+on s2.emp_id=a.emp_id
+inner join t_activity ac
+on ac.activity_id=a.activity_id
+where s1.changed_date>s2.changed_date 
+group by e.emp_f_name,e.emp_m_name,e.emp_l_name,
+a.atten_end_hrs,s1.emp_id,s1.new_salary,
+s2.new_salary,ac.activity_description;
 	
