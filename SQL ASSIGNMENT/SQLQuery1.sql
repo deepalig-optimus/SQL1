@@ -8,10 +8,11 @@ Create Table t_emp(
 	emp_f_name varchar(50) not null,
 	emp_m_name varchar(50),
 	emp_l_name varchar(50),
-	emp_dob Date not null,
+	emp_dob Date not null Check(DateDiff(year,emp_dob,Getdate())>=18),
 	emp_doj Date not null
 	);
 
+drop table t_emp;
 
 /*Create table n(
 	DOB Date Check(DateDiff(year,GetDate(),dob)>18)
@@ -23,7 +24,7 @@ Create Table t_activity(
 activity_id int Primary key,
 activity_description varchar(100)
 );
-
+drop table t_activity;
 
 --- Attendence Description Table
 Create Table t_atten_det(
@@ -35,7 +36,7 @@ Create Table t_atten_det(
 	Foreign key (emp_id) References t_emp(emp_id),
 	Foreign key (activity_id) References t_activity(activity_id)
 	);
-
+drop table t_atten_det;
 
 ---Salary Table
 Create Table t_salary(
@@ -45,13 +46,13 @@ Create Table t_salary(
 	new_salary Decimal(18,2)
 	);
 
-
+drop table t_salary;
 
 --Insert Data into Employee Table
 Insert into t_emp(emp_code,emp_f_name,emp_m_name,emp_l_name,emp_dob,emp_doj)
 	Values('OPT20110105','Manmohan',NULL,'Singh','1983-02-10','2010-05-25'),
 		('OPT20100915','Alfred','Joseph','Lawerence','1988-02-28','2010-06-20'),
-		('OPT20100900','Aman','Joseph','Lawerence','1988-02-28','2004-06-20')
+		('OPT20100900','Aman','Joseph','Lawerence','1988-02-28','2024-06-20')
 		;
 
 Select * from t_emp;
@@ -94,7 +95,7 @@ Select * from t_salary;
 
 Insert into t_emp(emp_code,emp_f_name,emp_m_name,emp_l_name,emp_dob,emp_doj)
 	Values('OPT20110107','Aman','Rajput','Singh','1983-01-30','2010-06-25'),
-		('OPT20100815','Ram',NULL,'Gupta','1988-03-31','2010-06-20');
+		('OPT20100815','Ram',NULL,'Gupta','2014-03-31','2010-06-20');
 
 Select * from t_emp;
 
@@ -114,8 +115,6 @@ With GetEmpByLastDay As(
 )
 Select * from GetEmpByLastDay
 where lastdayofmonth='yes';
-	
-
 
 --Select Day(emp_dob) as Date from t_emp;
 --Select month(emp_dob) as month from t_emp;
@@ -128,19 +127,16 @@ where lastdayofmonth='yes';
 --			total worked hours
 --			last worked activity and hours in that
 
-/*Select e.emp_id,
-	concat(e.emp_f_name,' ',e.emp_m_name,' ',e.emp_l_name) as fullname,
-	sum(a.atten_end_hrs) as total_worked_hrs,s.new_salary as salary
-	from 
-		t_emp e inner join t_atten_det a on e.emp_id=a.emp_id
-		inner join  t_salary s on a.emp_id=s.emp_id
-	group by e.emp_id,a.atten_end_hrs,e.emp_f_name,e.emp_m_name,e.emp_l_name,s.new_salary;*/
-
-
-Select concat(e.emp_f_name,' ',e.emp_m_name,' ',e.emp_l_name) as fullname,
-sum(a.atten_end_hrs) as total_hrs,ac.activity_description,
-s1.emp_id, s1.new_salary as previous_salary , 
-s2.new_salary as current_salary from t_salary s1  join 
+select concat(e.emp_f_name,' ',e.emp_m_name,' ',e.emp_l_name) as fullname,
+Case
+	When s2.new_salary>s1.new_salary then 'y'
+	else 'n'
+	End as increment,
+	 s1.new_salary as previous_salary , 
+	s2.new_salary as current_salary ,
+	sum(a.atten_end_hrs) as  total_hrs ,
+	ac.activity_description
+	from t_salary s1  join 
 t_salary s2 on s1.emp_id=s2.emp_id
 join t_emp e on
 e.emp_id=s2.emp_id
@@ -149,7 +145,40 @@ on s2.emp_id=a.emp_id
 inner join t_activity ac
 on ac.activity_id=a.activity_id
 where s1.changed_date>s2.changed_date 
-group by e.emp_f_name,e.emp_m_name,e.emp_l_name,
-a.atten_end_hrs,s1.emp_id,s1.new_salary,
-s2.new_salary,ac.activity_description;
-	
+GROUP BY 
+    e.emp_f_name, e.emp_m_name, e.emp_l_name, 
+    s1.new_salary, s2.new_salary, 
+    ac.activity_description, s1.emp_id, s2.emp_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE c (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT,
+    city VARCHAR(50)
+);
+INSERT INTO c (id, name, age, city) VALUES
+(1, 'Alice', 30, 'New York'),
+(2, 'Bob', 25, 'Los Angeles'),
+(3, 'Charlie', 35, 'Chicago'),
+(4, 'David', 30, 'Chicago'),
+(5, 'Eve', 25, 'New York');
+
+ORDER BY age ASC, name DESC;
+
+
+create procedure firstprocedure
+on 	
